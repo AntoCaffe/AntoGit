@@ -17,17 +17,17 @@ const ProductPage = () => {
   const fetchProducts = async () => {
     try {
       const token = await getAccessTokenSilently();
-
       console.log("ID Token:", token);
-      let response = axios.get(
-        "https://backend-productos.netlify.app/api/productos",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setProducts(response.data);
+
+      // Utilizamos destructuring para obtener data directamente de la respuesta
+      const { data } = await axios.get("https://backend-productos.netlify.app/api/productos", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Verificamos si data es undefined o null y asignamos un array vacío en ese caso
+      setProducts(data || []);
       setLoading(false);
     } catch (error) {
       toast.error("Hubo un error al cargar los productos");
@@ -58,12 +58,9 @@ const ProductPage = () => {
 
   const handleDeleteClick = (product) => {
     axios
-      .delete(
-        `https://backend-productos.netlify.app/api/productos/${product.id}`
-      )
+      .delete(`https://backend-productos.netlify.app/api/productos/${product.id}`)
       .then(() => {
         toast.success("El producto se ha eliminado correctamente.");
-
         fetchProducts();
       })
       .catch((error) => {
@@ -104,17 +101,11 @@ const ProductPage = () => {
                     <td>{product.categoria}</td>
                     <td>{product.stock}</td>
                     <td>
-                      <Button
-                        className="me-2"
-                        onClick={() => handleEditButtonClick(product)}
-                      >
+                      <Button className="me-2" onClick={() => handleEditButtonClick(product)}>
                         Editar
                       </Button>
 
-                      <Button
-                        variant="danger"
-                        onClick={() => handleDeleteClick(product)}
-                      >
+                      <Button variant="danger" onClick={() => handleDeleteClick(product)}>
                         Eliminar
                       </Button>
                     </td>
